@@ -31,11 +31,23 @@
 
 ## 🖥️ 页面预览
 
+### ① 首页 · 上行 / 下行配置
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/koolcy/xhttp/main/assets/banner.svg" alt="XHTTP Config preview" width="900">
+  <img src="https://raw.githubusercontent.com/koolcy/xhttp/main/assets/preview-home.svg" alt="XHTTP Config 首页与上下行配置" width="900">
 </p>
 
-> 实际生成页面包含上行配置、下行配置，以及多格式输出标签页。
+### ② 多格式输出
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/koolcy/xhttp/main/assets/preview-output.svg" alt="XHTTP 多格式输出" width="900">
+</p>
+
+### ③ v2rayN XHTTP Extra
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/koolcy/xhttp/main/assets/preview-v2rayn.svg" alt="v2rayN XHTTP Extra" width="900">
+</p>
 
 ## 🚀 Cloudflare Worker 部署
 
@@ -58,7 +70,10 @@ xhttp/
 ├── wrangler.jsonc
 ├── README.md
 └── assets/
-    └── banner.svg
+    ├── banner.svg
+    ├── preview-home.svg
+    ├── preview-output.svg
+    └── preview-v2rayn.svg
 ```
 
 ## 🔗 项目地址
