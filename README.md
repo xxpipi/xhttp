@@ -78,4 +78,4 @@ xhttp/
 
 ## 🔗 项目地址
 
-https://github.com/koolcy/xhttp
+https://github.com/xxpipi/xhttp
