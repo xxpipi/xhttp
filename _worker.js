@@ -1,100 +1,27 @@
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-
-    if (url.pathname === "/" || url.pathname === "/xhttp") {
-      return new Response(HTML, {
-        headers: {
-          "content-type": "text/html; charset=UTF-8",
-          "cache-control": "public, max-age=3600"
-        }
-      });
-    }
-
-    return new Response("Not Found", {
-      status: 404,
-      headers: { "content-type": "text/plain; charset=UTF-8" }
-    });
+    if (url.pathname !== "/" && url.pathname !== "/xhttp") return new Response("Not Found", { status: 404 });
+    return new Response(HTML, { headers: { "content-type": "text/html; charset=UTF-8", "cache-control": "public, max-age=3600" } });
   }
 };
 
-const HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>XHTTP 配置生成器</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fa;color:#222}.container{max-width:1100px;margin:30px auto;padding:20px}.card{background:#fff;border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.06)}h1{margin-top:0}h2{font-size:18px;margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}label{display:block;font-size:13px;margin-bottom:6px;color:#666}input,select,textarea,button{width:100%;font:inherit}input,select,textarea{padding:10px 12px;border:1px solid #ddd;border-radius:8px;background:#fff}textarea{min-height:260px;resize:vertical}button{border:0;border-radius:8px;padding:11px 16px;cursor:pointer;background:#111;color:#fff}.buttons{display:flex;gap:10px;flex-wrap:wrap}.buttons button{width:auto}.hint{color:#888;font-size:12px;margin-top:5px}.parse{display:flex;gap:10px}.parse input{flex:1}.parse button{width:auto}@media(max-width:600px){.container{margin:0;padding:10px}.card{padding:16px}.parse{flex-direction:column}.parse button{width:100%}}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="card"><h1>XHTTP 配置生成器</h1><p class="hint">Cloudflare Worker 纯静态版本 · 所有配置在浏览器本地生成。</p></div>
-<div class="card"><h2>VLESS / XHTTP 链接解析</h2><div class="parse"><input id="link" placeholder="粘贴 vless:// 链接"><button onclick="parseLink()">解析</button></div></div>
-<div class="card"><h2>上行配置</h2><div class="grid">
-<div><label>地址</label><input id="address" placeholder="example.com"></div>
-<div><label>端口</label><input id="port" type="number" value="443"></div>
-<div><label>UUID</label><input id="uuid" placeholder="UUID"></div>
-<div><label>Security</label><select id="security"><option value="tls">tls</option><option value="none">none</option></select></div>
-<div><label>XHTTP Mode</label><select id="mode"><option value="stream-up">stream-up</option><option value="packet-up">packet-up</option></select></div>
-<div><label>Path</label><input id="path" placeholder="/xhttp"></div>
-<div><label>SNI</label><input id="sni" placeholder="留空使用地址"></div>
-<div><label>Host</label><input id="host" placeholder="留空使用 SNI"></div>
-<div><label>优选 IP / 域名</label><input id="preferredIP" placeholder="可选"></div>
-</div></div>
-<div class="card"><h2>下行配置</h2><div class="grid">
-<div><label>下行地址</label><input id="downloadAddress" placeholder="CloudFront 域名"></div>
-<div><label>下行端口</label><input id="downloadPort" type="number" value="443"></div>
-<div><label>下行 Mode</label><select id="downloadMode"><option value="follow">跟随上行</option><option value="stream-up">stream-up</option><option value="packet-up">packet-up</option></select></div>
-<div><label>下行 Security</label><select id="downloadSecurity"><option value="tls">tls</option><option value="none">none</option></select></div>
-<div><label>下行 SNI</label><input id="downloadSNI"></div>
-<div><label>下行 Path</label><input id="downloadPath" placeholder="留空跟随上行"></div>
-<div><label>下行优选 IP / 域名</label><input id="downloadPreferredIP"></div>
-</div></div>
-<div class="card"><h2>连接调优</h2><div class="grid">
-<div><label>最大并发</label><input id="maxConcurrency" type="number"></div>
-<div><label>最大连接</label><input id="maxConnections" type="number"></div>
-<div><label>复用上限</label><input id="reuse" type="number"></div>
-<div><label>每连接请求数</label><input id="requests" type="number"></div>
-<div><label>存活秒数</label><input id="idle" type="number"></div>
-<div><label>心跳秒数</label><input id="heartbeat" type="number"></div>
-<div><label>填充字节</label><input id="padding" type="number"></div>
-</div><p class="hint">全部留空时不写入调优字段。</p></div>
-<div class="card"><h2>生成结果</h2><div class="buttons"><button onclick="generate()">生成 Xray JSON</button><button onclick="copyConfig()">复制配置</button><button onclick="clearAll()">清空</button></div><br><textarea id="output" placeholder="生成结果会显示在这里"></textarea></div>
-</div>
+const HTML = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1020"><title>XHTTP Config</title><style>
+:root{--bg:#080b14;--card:#101624;--card2:#0d1320;--text:#edf2ff;--muted:#8d98ad;--line:#202a3c;--accent:#7c5cff;--accent2:#5eead4;--danger:#ff6b81}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#1b1640 0,transparent 35%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:1050px;margin:auto;padding:28px 18px 20px}.hero{text-align:center;padding:32px 0 24px}.logo{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#081019;font-weight:900;font-size:18px;box-shadow:0 10px 35px #0008}.hero h1{font-size:30px;margin:14px 0 4px;letter-spacing:-.7px}.hero p{margin:0;color:var(--muted)}.bar{display:flex;gap:9px;margin-bottom:16px}.bar input{flex:1}.card{background:linear-gradient(180deg,#111827ee,#0d1320ee);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 14px 45px #0003}.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.title h2{font-size:15px;margin:0}.tag{font-size:11px;color:var(--accent2);border:1px solid #24534e;padding:3px 8px;border-radius:99px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}.field input,.field select,textarea,.bar input{width:100%;border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:10px;padding:10px 11px;outline:0}.field input:focus,.field select:focus,.bar input:focus,textarea:focus{border-color:var(--accent)}button{border:0;border-radius:10px;padding:10px 14px;background:#1a2232;color:var(--text);cursor:pointer;font-weight:600}button:hover{filter:brightness(1.15)}button.primary{background:linear-gradient(135deg,var(--accent),#5f7cff)}button.small{white-space:nowrap}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}textarea{min-height:300px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}.foot{text-align:center;color:var(--muted);padding:22px 0 8px}.foot a{color:#a99bff;text-decoration:none}.note{font-size:12px;color:var(--muted);margin:10px 0 0}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.wrap{padding:12px}.hero{padding:22px 0 16px}.hero h1{font-size:25px}.grid{grid-template-columns:1fr}.bar{flex-direction:column}.bar button{width:100%}}
+</style></head><body><div class="wrap"><header class="hero"><div class="logo">XH</div><h1>XHTTP Config</h1><p>简单、快速、纯本地的 XHTTP 配置生成工具</p></header>
+<div class="bar"><input id="link" placeholder="粘贴 vless:// 链接，自动解析"><button class="primary" onclick="parseLink()">解析</button></div>
+<section class="card"><div class="title"><h2>上行配置</h2><span class="tag">UPSTREAM</span></div><div class="grid"><div class="field"><label>地址</label><input id="address" placeholder="example.com"></div><div class="field"><label>端口</label><input id="port" type="number" value="443"></div><div class="field"><label>UUID</label><input id="uuid" placeholder="UUID"></div><div class="field"><label>Security</label><select id="security"><option>tls</option><option>none</option></select></div><div class="field"><label>Mode</label><select id="mode"><option>stream-up</option><option>packet-up</option></select></div><div class="field"><label>Path</label><input id="path" placeholder="/xhttp"></div><div class="field"><label>SNI</label><input id="sni" placeholder="留空使用地址"></div><div class="field"><label>Host</label><input id="host" placeholder="留空使用 SNI"></div><div class="field"><label>优选 IP / 域名</label><input id="preferredIP" placeholder="可选"></div></div><div class="actions"><button class="small" onclick="randomUUID()">随机 UUID</button><button class="small" onclick="randomPath()">随机 Path</button></div></section>
+<section class="card"><div class="title"><h2>下行配置</h2><span class="tag">DOWNSTREAM</span></div><div class="grid"><div class="field"><label>地址</label><input id="downloadAddress" placeholder="CloudFront 域名"></div><div class="field"><label>端口</label><input id="downloadPort" type="number" value="443"></div><div class="field"><label>Mode</label><select id="downloadMode"><option value="follow">跟随上行</option><option>stream-up</option><option>packet-up</option></select></div><div class="field"><label>Security</label><select id="downloadSecurity"><option>tls</option><option>none</option></select></div><div class="field"><label>SNI</label><input id="downloadSNI" placeholder="留空使用下行地址"></div><div class="field"><label>Path</label><input id="downloadPath" placeholder="留空跟随上行"></div><div class="field"><label>优选 IP / 域名</label><input id="downloadPreferredIP"></div></div></section>
+<section class="card"><div class="title"><h2>连接调优</h2><span class="tag">OPTIONAL</span></div><div class="grid"><div class="field"><label>最大并发</label><input id="maxConcurrency" type="number"></div><div class="field"><label>最大连接</label><input id="maxConnections" type="number"></div><div class="field"><label>复用上限</label><input id="reuse" type="number"></div><div class="field"><label>每连接请求数</label><input id="requests" type="number"></div><div class="field"><label>存活秒数</label><input id="idle" type="number"></div><div class="field"><label>心跳秒数</label><input id="heartbeat" type="number"></div><div class="field"><label>填充字节</label><input id="padding" type="number"></div></div><p class="note">全部留空时使用 Xray 默认行为。</p></section>
+<section class="card"><div class="title"><h2>生成结果</h2><span class="tag">LOCAL ONLY</span></div><div class="actions"><button class="primary" onclick="generate()">生成 Xray JSON</button><button onclick="copyConfig()">复制</button><button onclick="downloadJSON()">下载 JSON</button><button onclick="clearAll()">清空</button></div><br><textarea id="output" placeholder="配置生成后显示在这里"></textarea></section>
+<footer class="foot">XHTTP Config · Open Source · <a href="https://github.com/xxpipi/xhttp" target="_blank" rel="noopener">GitHub Repository</a></footer></div>
 <script>
-const v=id=>document.getElementById(id).value.trim();
-const n=id=>{const x=v(id);return x===""?undefined:Number(x)};
-function setv(id,x){if(x!==undefined&&x!==null)document.getElementById(id).value=x}
-function parseLink(){
-  try{
-    const raw=v('link');
-    if(!raw.startsWith('vless://')) throw new Error('请输入 vless:// 链接');
-    const u=new URL(raw);
-    setv('uuid',decodeURIComponent(u.username));setv('address',u.hostname);setv('port',u.port||443);
-    const p=u.searchParams;
-    setv('security',p.get('security')||'tls');setv('path',p.get('path')||'/');setv('sni',p.get('sni')||'');setv('host',p.get('host')||'');
-    setv('mode',p.get('mode')||p.get('xhttpMode')||'stream-up');
-    alert('解析完成');
-  }catch(e){alert('解析失败：'+e.message)}
-}
-function generate(){
-  const address=v('preferredIP')||v('address');
-  const sni=v('sni')||v('address');
-  const host=v('host')||sni;
-  const path=v('path')||'/';
-  const da=v('downloadPreferredIP')||v('downloadAddress');
-  const dsni=v('downloadSNI')||v('downloadAddress');
-  const dpath=v('downloadPath')||path;
-  const dmode=v('downloadMode')==='follow'?v('mode'):v('downloadMode');
-  const xs={mode:v('mode'),path,host,downloadSettings:{address:da,port:Number(v('downloadPort')||443),mode:dmode,security:v('downloadSecurity'),serverName:dsni,path:dpath}};
-  const tuning={maxConcurrency:n('maxConcurrency'),maxConnections:n('maxConnections'),reuse:n('reuse'),requests:n('requests'),idle:n('idle'),heartbeat:n('heartbeat'),padding:n('padding')};
-  for(const [k,val] of Object.entries(tuning)) if(val!==undefined) xs[k]=val;
-  const config={protocol:'vless',settings:{vnext:[{address,port:Number(v('port')||443),users:[{id:v('uuid'),encryption:'none'}]}]},streamSettings:{network:'xhttp',security:v('security'),tlsSettings:{serverName:sni},xhttpSettings:xs}};
-  document.getElementById('output').value=JSON.stringify(config,null,2);
-}
-async function copyConfig(){if(!v('output'))generate();try{await navigator.clipboard.writeText(v('output'));alert('已复制')}catch(e){alert('复制失败，请手动复制')}}
-function clearAll(){document.querySelectorAll('input').forEach(x=>{if(x.id!=='port'&&x.id!=='downloadPort')x.value=''});document.getElementById('output').value=''}
-</script>
-</body></html>`;
+const v=id=>document.getElementById(id).value.trim(), n=id=>{const x=v(id);return x===''?undefined:Number(x)}, setv=(id,x)=>{if(x!==undefined&&x!==null)document.getElementById(id).value=x};
+function parseLink(){try{const raw=v('link');if(!raw.startsWith('vless://'))throw Error('请输入 vless:// 链接');const u=new URL(raw);setv('uuid',decodeURIComponent(u.username));setv('address',u.hostname);setv('port',u.port||443);const p=u.searchParams;setv('security',p.get('security')||'tls');setv('path',p.get('path')||'/');setv('sni',p.get('sni')||'');setv('host',p.get('host')||'');setv('mode',p.get('mode')||p.get('xhttpMode')||'stream-up');alert('解析完成')}catch(e){alert('解析失败：'+e.message)}}
+function randomUUID(){const b=crypto.getRandomValues(new Uint8Array(16));b[6]=b[6]&15|64;b[8]=b[8]&63|128;setv('uuid',[...b].map((x,i)=>((i==4||i==6||i==8||i==10)?'-':'')+x.toString(16).padStart(2,'0')).join(''))}
+function randomPath(){const a='abcdefghijklmnopqrstuvwxyz0123456789';let s='';for(let i=0;i<10;i++)s+=a[Math.floor(Math.random()*a.length)];setv('path','/'+s)}
+function generate(){const address=v('preferredIP')||v('address'),sni=v('sni')||v('address'),host=v('host')||sni,path=v('path')||'/',da=v('downloadPreferredIP')||v('downloadAddress'),dsni=v('downloadSNI')||v('downloadAddress'),dpath=v('downloadPath')||path,dmode=v('downloadMode')==='follow'?v('mode'):v('downloadMode');const xs={mode:v('mode'),path,host,downloadSettings:{address:da,port:Number(v('downloadPort')||443),mode:dmode,security:v('downloadSecurity'),serverName:dsni,path:dpath}};for(const [k,val] of Object.entries({maxConcurrency:n('maxConcurrency'),maxConnections:n('maxConnections'),reuse:n('reuse'),requests:n('requests'),idle:n('idle'),heartbeat:n('heartbeat'),padding:n('padding')}))if(val!==undefined)xs[k]=val;const config={protocol:'vless',settings:{vnext:[{address,port:Number(v('port')||443),users:[{id:v('uuid'),encryption:'none'}]}]},streamSettings:{network:'xhttp',security:v('security'),tlsSettings:{serverName:sni},xhttpSettings:xs}};document.getElementById('output').value=JSON.stringify(config,null,2)}
+async function copyConfig(){if(!v('output'))generate();try{await navigator.clipboard.writeText(v('output'));alert('已复制到剪贴板')}catch(e){alert('复制失败，请手动复制')}}
+function downloadJSON(){if(!v('output'))generate();const blob=new Blob([v('output')],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='xhttp-config.json';a.click();URL.revokeObjectURL(a.href)}
+function clearAll(){document.querySelectorAll('input').forEach(x=>{if(!['port','downloadPort','link'].includes(x.id))x.value=''});document.getElementById('link').value='';document.getElementById('output').value=''}
+</script></body></html>`;
